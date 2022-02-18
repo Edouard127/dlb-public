@@ -7,7 +7,7 @@ function guildCreate(Discord, client, guild, fs, decache) {
 
   console.log(` Le serveur ${guildName} (${guildID}) vient de faire entrer ${client.user.tag}`);
 
-  guild.createChannel("shared-chat", { type: "text"}).then(chan => {
+  guild.channels.create("shared-chat", { type: "text"}).then(chan => {
 
     var guildFile = guildDir + chan.id + ".js";
     var fileText = `var Discord = require("discord.js")\n

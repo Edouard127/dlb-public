@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 const Discord = require("./node_modules/discord.js");
-const client = new Discord.Client({autoReconnect: true, max_message_cache: 0/*, disableEveryone: true*/});
+const client = new Discord.Client({autoReconnect: true, max_message_cache: 0, intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS"]/*, disableEveryone: true*/});
 const config = require("./config.json");
 const fs = require("fs-extra");
 const decache = require("decache");
@@ -33,7 +33,7 @@ client.on("guildDelete", guild => {
   guildDelete(Discord, client, guild, fs, decache)
 });
 
-client.on("message", (message) => {
+client.on("messageCreate", (message) => {
   // on ne prend pas en compte les DMs
   if (message.channel.type == "dm") return;
 
@@ -89,11 +89,11 @@ client.on("message", (message) => {
   if ((message.author.bot) || message.content.startsWith(prefix)) return;
 
   var chanID = message.channel.id;
-  var channel = client.channels.get(chanID); 
-  var authorID = client.users.get(`${message.author.id}`);
+  //var channel = client.channels.get(chanID); 
+  var authorID = client.users.cache.get(`${message.author.id}`);
   let avatarURL = 'http://teenanon.free.fr/teenrock/discordbot/pictures_res/default_avatar.png';
-
-  if (authorID.avatarURL !== null) avatarURL = authorID.avatarURL.split('size=2048').join('size=64');
+//console.log(authorID.avatarURL())
+  if (authorID.avatarURL !== null) avatarURL = authorID.avatarURL().split('size=2048').join('size=64');
 
   let msg = message.content;
 
@@ -130,7 +130,7 @@ client.on("message", (message) => {
                   // on require le fichier du webhook
           	      var wb = require(wbFile)
                   // on édite le fichier du webhook
-                  wb.edit(`${message.author.username}`, `${avatarURL}`).catch(err => {
+                  wb.edit({'name': message.author.tag, 'avatar': avatarURL}).catch(err => {
                     if (err) console.log(err)
                   // puis...
                   }).then(wb => {
@@ -154,7 +154,7 @@ client.on("message", (message) => {
 
           })
           // on retourne dans la console le nom d'utilisateur et le message
-        } else console.log(" " + message.author.username + " : " + msg)
+        } else console.log(" " + message.author.tag + " : " + msg)
   	  })
     }
   })

@@ -20,8 +20,9 @@ A single channel cannot be linked more than once.\nIf you wish to unlink or chan
     fs.readdir(linkedGuildPath, (err, files) => {
     
     if (!files) return console.log("err 001")
-
-    var fileCount = files.length;
+      console.log(files.length)
+    var fileCount = 0 
+    fileCount = files.length
 
     if (fileCount >= 10) {
 
@@ -31,21 +32,29 @@ A single channel cannot be linked more than once.\nIf you wish to unlink or chan
 
       message.reply("Please select a network :").then(msg => {
 
-    msg.react("\u0031\u20E3").then(react0 => msg.react("\u0032\u20E3").then(react1 => msg.react("\u0033\u20E3").then(react2 => msg.react("\uD83D\uDD1E"))))
+    msg.react("1️⃣").then(react0 => msg.react("2️⃣").then(react1 => msg.react("3️⃣").then(react2 => msg.react("🔞"))))
+    console.log("Adding reactions")
 
     client.on("messageReactionAdd", (reaction, user, channel) => {
+      console.log("Reaction added")
 
       if (user.id != client.user.id) { // is not bot user
 
         if (user.id != message.author.id) { // user react is not the same of user message
-          message.channel.send(`**${user}** It's not your responsibility to react`).then(msg => reaction.remove() && msg.delete(3500));
+          message.channel.send(`**${user}** It's not your responsibility to react`).then(msg => reaction.remove() && msg.delete(30500));
 
         } else if ((user.id == message.author.id) && (reaction.message.id == msg.id)) {
 
-          if (reaction.emoji == "\u0031\u20E3") netChoice = "A00";
-          else if (reaction.emoji == "\u0032\u20E3") netChoice = "B00";
-          else if (reaction.emoji == "\u0033\u20E3") netChoice = "C00";
-          else if (reaction.emoji ==  "\uD83D\uDD1E"){
+          if (reaction.emoji.name == "1️⃣"){
+            netChoice = "A00"; 
+          }
+          else if (reaction.emoji.name == "2️⃣"){
+            netChoice = "B00";
+          } 
+          else if (reaction.emoji.name == "3️⃣"){
+            netChoice = "C00";
+          } 
+          else if (reaction.emoji.name ==  "🔞"){
             if(message.channel.nsfw){
               netChoice = "NSFW000"
             }
@@ -57,7 +66,7 @@ A single channel cannot be linked more than once.\nIf you wish to unlink or chan
           } 
 
 
-          if ((msg != undefined)||(msg != null)) msg.delete();
+          if ((msg != undefined)||(msg != null)) //msg.delete();
 
           console.log("\n network choice : " + netChoice)
           console.log(" maxSlot :" + maxSlot)
@@ -65,9 +74,8 @@ A single channel cannot be linked more than once.\nIf you wish to unlink or chan
           var newGuildFilePath = networksDir + netChoice + "/" + guildID + "/" + chanID + ".js";
 
           fs.readdir(networksDir + netChoice, (err, files) => {
-            
-            var fileCount = files.length;
-            console.log(fileCount);
+            console.log(files)
+            var fileCount = files.length
 
 
             var registerGuildPath = function() {
@@ -130,7 +138,7 @@ A single channel cannot be linked more than once.\nIf you wish to unlink or chan
                 var hookID = wb.id;
                 var hookToken = wb.token;
                 var fileText = `var Discord = require("discord.js")\n
-hook_${chanID} = new Discord.WebhookClient("${hookID}", "${hookToken}");\n
+hook_${chanID} = new Discord.WebhookClient({ url: "https://discord.com/api/webhooks/${hookID}/${hookToken}"});\n
 module.exports = hook_${chanID}`;
 
                 if (fs.existsSync(newGuildFilePath)) {

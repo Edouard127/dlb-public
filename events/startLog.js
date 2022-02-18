@@ -5,11 +5,11 @@ function startLog(client) {
   fullMembersList = []
   membersList = []
   var serverCount = client.guilds.size;
-  const guildNames = client.guilds.map(g => g.name).join(`\n `);
-  const guildIDs = client.guilds.map(g => g.id).join(`\n `);
+  const guildNames = client.guilds.cache.forEach(g => g.name)
+  const guildIDs = client.guilds.cache.forEach(g => g.id)
 
-    client.guilds.forEach(guild => {
-      guild.members.forEach(member => {
+    client.guilds.cache.forEach(guild => {
+      guild.members.cache.forEach(member => {
         var userID = member.id;
         fullMembersList.push(userID)
       })
