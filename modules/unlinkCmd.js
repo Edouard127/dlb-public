@@ -6,9 +6,9 @@ function unlinkCmd(Discord, client, message, fs, decache, path) {
   var linkedGuildFilePath = linkedDir + guildID + "/" + chanID + ".js";
   
   // on vérifie que que le salon soit présent sur un réseau, le cas échant on s'arrête ici
-  if(!fs.existsSync(linkedGuildFilePath)) return message.reply("ce salon n'est actuellement relié à aucun réseau. Utilisez la commande **\`!link\`** si vous souhaitez de nouveau rejoindre un réseau.")
+  if(!fs.existsSync(linkedGuildFilePath)) return message.reply(`This channel is not linked\nIf you wish to link, use the following command: **\`!link\`** `)
   // on demande confirmation pour retirer le salon du réseau
-  message.reply("veuillez confirmer que vous souhaitez retirer ce salon du réseau").then(msg => {
+  message.reply("Please confirm that you wish to unlink").then(msg => {
     // on envoie le choix de confirmation sous forme de réaction
     msg.react("🇾").then(react0 => msg.react("🇳"))
     // on attend une réaction
@@ -17,7 +17,7 @@ function unlinkCmd(Discord, client, message, fs, decache, path) {
       if (user.id != client.user.id) {
         // on vérifie que l'utilisateur qui réagit est celui qui a émit la commande de link
         if (user.id != message.author.id) {
-            message.channel.send(`**${user}** pas touche !`).then(msg => reaction.remove() && msg.delete(7500)); // si ce n'est pas le cas on retire la réaction
+            message.channel.send(`**${user}** It's not your responsibility to react`).then(msg => reaction.remove() && msg.delete(7500)); // si ce n'est pas le cas on retire la réaction
 
           } else if ((user.id == message.author.id) && (reaction.message.id == msg.id)) { // on vérifie que l'id utilisateur et l'id du message correspondent respectivement
 
@@ -169,7 +169,7 @@ module.exports = hook`;
                   var fileCount = files.length;
                   if (fileCount == 0) fs.rmdir(linkedDir + guildID) && console.log(" Le dossier " + linkedDir + guildID + "/ est vide, il a été supprimé")
                 })
-                message.channel.send(`Votre salon **#` + message.channel.name + "** vient d'être déconnecté du réseau **" + network + "**")
+                message.channel.send(`Your channel **#` + message.channel.name + "** has been disconnected from the network **" + network + "**")
               }
             })
               

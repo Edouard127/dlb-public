@@ -2,7 +2,7 @@ function guildDelete(Discord, client, guild, fs, decache) {
 
   var guildName = guild.name;
   var guildID = guild.id;
-  var unlinkedGuildDir = unlinkedDir + guildID + "/";
+  var unlinkedGuildDir = unlinkedGuildDir + guildID + "/";
 
   console.log(` ${client.user.tag} vient d'être retiré du serveur ${guildName} (${guildID})`)
 
@@ -10,9 +10,12 @@ function guildDelete(Discord, client, guild, fs, decache) {
   if (fs.existsSync(unlinkedGuildDir)) {
 
     fs.readdirSync(unlinkedGuildDir).forEach(file => {
-
+      try {
       fs.removeSync(unlinkedDir + file)
       console.log(" Le fichier " + unlinkedGuildDir + file + ".js" + " vient d'être supprimé")
+      } catch (err) {
+        console.log(err)
+      }
     })
 
     fs.removeSync(unlinkedGuildDir)
@@ -31,9 +34,12 @@ function guildDelete(Discord, client, guild, fs, decache) {
         var guildDir = guildDir + dir + "/";
 
         fs.readdirSync(guildDir).forEach(file => {
-
+          try {
           fs.removeSync(guildDir + file)
           console.log(" Le fichier " + guildFile + " vient d'être supprimé")
+          } catch(err) {
+            console.log(err)
+          }
           
         })
 

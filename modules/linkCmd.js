@@ -9,8 +9,8 @@ function linkCmd(Discord, client, message, fs, decache, path) {
 
 
 
-    if (fs.existsSync(linkedGuildFilePath)) return message.reply(`ce salon est déjà relié à un réseau ou vous avez déjà effectué une demande.
-Un même salon ne peut être relié à deux réseaux simultanément.\nSi vous souhaitez changer de réseau ou effectuer une nouvelle demande, utilisez d'abord la commande **\`!unlink\`** `).then(msg => msg.delete(15000))
+    if (fs.existsSync(linkedGuildFilePath)) return message.reply(`This channel is already linked, or you already made a request
+A single channel cannot be linked more than once.\nIf you wish to unlink or change network, use the following command: **\`!unlink\`** `).then(msg => msg.delete(7000))
 
     if (!fs.existsSync(unlinkedGuildPath)) fs.mkdir(unlinkedGuildPath)
     if (!fs.existsSync(linkedGuildPath)) fs.mkdir(linkedGuildPath)
@@ -23,28 +23,39 @@ Un même salon ne peut être relié à deux réseaux simultanément.\nSi vous so
 
       var fileCount = files.length;
 
-      if (fileCount >= 2) {
+      if (fileCount >= 10) {
 
-        return message.reply("Le maximum de **" + fileCount + "** fichiers de configuration autorisés par serveur a été atteint.")
+        return message.reply("Maximum of**" + fileCount + "** file authorized by server networks has been achieved")
 
-      } else if (fileCount <= 1) {
+      } else {
 
-        message.reply("Veuillez choisir un réseau :").then(msg => {
+        message.reply("Please select a network :").then(msg => {
 
-      msg.react("\u0031\u20E3").then(react0 => msg.react("\u0032\u20E3").then(react1 => msg.react("\u0033\u20E3")))
+      msg.react("\u0031\u20E3").then(react0 => msg.react("\u0032\u20E3").then(react1 => msg.react("\u0033\u20E3").then(react2 => msg.react("\uD83D\uDD1E"))))
 
       client.on("messageReactionAdd", (reaction, user, channel) => {
 
         if (user.id != client.user.id) { // is not bot user
 
           if (user.id != message.author.id) { // user react is not the same of user message
-            message.channel.send(`**${user}** pas touche !`).then(msg => reaction.remove() && msg.delete(7500));
+            message.channel.send(`**${user}** It's not your responsibility to react`).then(msg => reaction.remove() && msg.delete(3500));
 
           } else if ((user.id == message.author.id) && (reaction.message.id == msg.id)) {
 
             if (reaction.emoji == "\u0031\u20E3") netChoice = "A00";
             else if (reaction.emoji == "\u0032\u20E3") netChoice = "B00";
             else if (reaction.emoji == "\u0033\u20E3") netChoice = "C00";
+            else if (reaction.emoji ==  "\uD83D\uDD1E"){
+              if(message.channel.nsfw){
+                netChoice = "NSFW000"
+              }
+              else {
+                message.channel.send("This channel is not NSFW\nYou will be logged in automatically to the default network.")
+                netChoice = "A00" //backup
+              }
+              
+            } 
+
 
             if ((msg != undefined)||(msg != null)) msg.delete();
 
@@ -128,11 +139,11 @@ module.exports = hook_${chanID}`;
 
                     addGuildToNetworkChoice()
 
-                    message.channel.send(`Votre salon **#` + message.channel.name + "** vient d'être inscrit sur le réseau **" + netChoice + "**")
+                    message.channel.send(`Your channel **#` + message.channel.name + "** has just been signed in** " + netChoice + "**")
 
                   }
 
-                  console.log(" ID du salon : " + wb.channelID)
+                  console.log(" ID of channel : " + wb.channelID)
 
                   
 
@@ -142,17 +153,17 @@ module.exports = hook_${chanID}`;
 
               if (fileCount == maxSlot) {
                 
-                return message.channel.send("Le réseau **" + netChoice + "** est saturé, veuillez re-taper la commande **\`!link\`** et choisir un autre réseau.").then(msg => msg.delete(7000))
+                return message.channel.send("The Network **" + netChoice + "** is satured, please re-enter the command **\`!link\`** and chose another network").then(msg => msg.delete(7000))
 
               } else if (fileCount <= 1) {
-                message.channel.send("Vous êtes le premier serveur sur le réseau **" + netChoice + "**").then(msg => {
+                message.channel.send("You are the first on the network **" + netChoice + "**").then(msg => {
                   registerGuildPath()
                   createFileServ()
                   
                 })
 
               } else if ((fileCount <= maxSlot-1) && (fileCount >= 1)) {
-                message.channel.send("**"+ fileCount + " serveur(s)** se trouve(nt) actuellement sur le réseau **" + netChoice + "**").then(msg => {
+                message.channel.send("**"+ fileCount + " server(s)** are currently located on the network **" + netChoice + "**").then(msg => {
                   registerGuildPath()
                   createFileServ()
 

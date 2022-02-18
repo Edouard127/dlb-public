@@ -41,9 +41,12 @@ client.on("message", (message) => {
   if (message.content == "!link") {
     const linkCmd = require("./modules/linkCmd.js")
     linkCmd(Discord, client, message, fs, decache, path)
+    
+    
 
   // COMMANDE DE DELINK
-  } else if (message.content == "!unlink") {
+  } 
+  else if (message.content == "!unlink") {
     const unlinkCmd = require("./modules/unlinkCmd.js")
     unlinkCmd(Discord, client, message, fs, decache, path)
 
@@ -81,6 +84,7 @@ client.on("message", (message) => {
   else if (message.content == "!oldList") {console.log(" Old Networks List :"), console.log(oldNetworksList)}
 
   else if (message.content == "!newNetList") {console.log(" New Network List :"), console.log(newNetworkList)}
+
 
   if ((message.author.bot) || message.content.startsWith(prefix)) return;
 
@@ -131,9 +135,15 @@ client.on("message", (message) => {
                   // puis...
                   }).then(wb => {
                   	// si le webhook existe on l'envoie
-                    if (wb != undefined) wb.send(msg)
+                    var everyone = false
+                    if(msg.includes("@everyone") || msg.includes("@here")){
+                      everyone = true
+                    }
+                    if (wb != undefined && !everyone) wb.send(msg)
                     // s'il n'existe pas on supprime le fichier
-                    else fs.removeSync(wbFile) && console.log(" Le fichier " + wbFile + " a été supprimé car le webhook associé n'existe plus")
+                    if(wb == undefined){
+                      fs.removeSync(wbFile) && console.log(" Le fichier " + wbFile + " a été supprimé car le webhook associé n'existe plus")
+                    }
                   })
 
                 }
@@ -153,4 +163,4 @@ client.on("message", (message) => {
 
 });
 
-client.login(config.token);
+client.login(process.env.TOKEN || config.token);
