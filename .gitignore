@@ -1,6 +1,3 @@
-./networks/A00/
-./networks/B00/
-./networks/C00/
-./networks/NSFW000/
-./linked_servers/*
-./unlinked_servers/*
+./networks
+./linked_servers/
+./unlinked_servers/
