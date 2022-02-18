@@ -35,6 +35,9 @@ function unlinkCmd(Discord, client, message, fs, decache, path) {
 module.exports = hook`;
 
             // DELINK CODE
+            channel.fetchWebhooks()
+  .then(hooks => console.log(`This channel has ${hooks.size} hooks`))
+  .catch(console.error);
 
             linkedChanIDsList.map(linkedID => {
 
