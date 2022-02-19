@@ -1,9 +1,9 @@
 # dlb-public-dev
 
-Version Publique de discord-link-bot en cours de développement
+Public version of discord-link-bot under development
 
-Cette version est inspirée de la version première de https://github.com/teenrock/discord-link-bot
+This version is inspired by the first version of https://github.com/teenrock/discord-link-bot
 
-Etant destinée à une utilisation publique, cette version comporte plusieurs réseaux distincts (A00, B00, C00, etc)
-qu'il est possible de rejoindre à raison de X réseaux maximum par serveur.
-Un salon ne peut être relié qu'une seule et unique fois.
+Being intended for a public use, this version includes several distinct networks (A00, B00, C00, etc)
+that can be joined at a rate of X networks maximum per server.
+A room can only be connected once.
