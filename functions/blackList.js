@@ -16,7 +16,7 @@ function blackList(Discord, client, message, fs, decache, path, args, reason){
                     else {
                         db.push("bans.bans", [args[1]])
                     }
-                    //console.log(db.get("bans.bans"))
+                    console.log(db.get("bans.bans"))
                     
                     message.reply(`${args[1]} successfully banned`)
                 }

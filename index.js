@@ -2,8 +2,9 @@
 // DLB-DEV
 /////////////////////////////////////////////////////////////////////////////////////////
 
-const Discord = require("./node_modules/discord.js");
-const client = new Discord.Client({autoReconnect: true, max_message_cache: 0, intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS"], partials: ['MESSAGE', 'CHANNEL', 'REACTION'],/*, disableEveryone: true*/});
+const Discord  = require("./node_modules/discord.js");
+const { MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
+const client = new Discord.Client({autoReconnect: true, max_message_cache: 0, intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS", "GUILD_MEMBERS"], partials: ['MESSAGE', 'CHANNEL', 'REACTION'],/*, disableEveryone: true*/});
 const config = require("./config.json");
 const fs = require("fs-extra");
 const decache = require("decache");
@@ -40,6 +41,7 @@ client.on("channelDelete", guild => {
   guildDelete(Discord, client, guild, fs, decache)
 })
 
+
 client.on('messageReactionAdd', async (reaction, user) => {
 	// When a reaction is received, check if the structure is partial
 	if (reaction.partial) {
@@ -52,7 +54,121 @@ client.on('messageReactionAdd', async (reaction, user) => {
 			return;
 		}
 	}
+  var id = (await reaction.message.guild.members.fetch()).find(user => user.user.tag === reaction.message.author.username)
+  console.log(id)
+  
+  
+  var username = reaction.message.author.username
+  var time = new Date(reaction.message.author.createdTimestamp)
+  var fromS = reaction.message.guild.name
+  var fromC = reaction.message.channel.name
+  var content = reaction.message.content
+  var ownerOf = reaction.message.guild.fetchOwner()
+  
+  if(reaction.message.webhookId !== null){
+    const exampleEmbed = new MessageEmbed()
+	.setTitle('User Informations')
+	.setAuthor({ name: client.user.username, iconURL: client.user.avatarURL, url: 'https://protogenparadise.xyz' })
+	.setThumbnail(reaction.message.author.avatarURL())
+	.addFields(
+    { name: `Content:`, value: `${content}`, inline: true },
+    { name: '\u200B', value: '\u200B' },
+		{ name: `ID:`, value: `${id.id}`, inline: true },
+    { name: '\u200B', value: '\u200B' },
+		{ name: 'Username', value: `${username}`, inline: true },
+    { name: '\u200B', value: '\u200B' },
+    { name: 'Sent at:', value: `${time}`, inline: true },
+    { name: '\u200B', value: '\u200B' },
+    { name: 'Sent from:', value: `${fromS}\nIn: ${fromC}`, inline: true },
+    { name: '\u200B', value: '\u200B' },
+    { name: 'Owner of:', value: `${fromS}: ${(await ownerOf).user.username}\n${reaction.message.guild.memberCount} members`, inline: true },
+    { name: '\u200B', value: '\u200B' },
+	)
+	.setTimestamp()
+	.setFooter({ text: 'Created by xzdc, Continued by Kamigen#0001', iconURL: 'https://cdn.discordapp.com/avatars/944637831844864020/401906366a8da021b14e8c8b57b4b170.webp' })
+  const report = new MessageActionRow()
+			.addComponents(
+				new MessageButton()
+					.setCustomId('report')
+					.setLabel('Report User ?')
+					.setStyle('DANGER')
+      )
+      const reportForm = new MessageActionRow()
+			.addComponents(
+				
+      
+          new MessageSelectMenu()
+					.setCustomId('reportForm')
+					.setPlaceholder('Nothing selected')
+					.setMaxValues(2)
+					.addOptions([
+						{
+							label: 'Cyber-bulllying or harrassement',
+							value: 'harrassement',
+						},
+						{
+							label: 'Spam',
+							value: 'spam',
+						},
+						{
+							label: 'Graphic or sexual content',
+							value: 'graphic',
+						},
+            {
+							label: 'Scam',
+							value: 'scam',
+						},
+						{
+							label: 'Promotion or encouragement of self-harm or suicide',
+							value: 'suicide',
+						},
+						{
+							label: 'Harmful misinformation or violent extremism',
+							value: 'karen',
+						},
+            {
+              label: 'Other',
+              value: 'other',
+            }
+					])
+      )
+      
+			
+      user.send({ embeds: [exampleEmbed], components: [report] }).then(message => {
+        
+        
+        message.awaitMessageComponent()
+          .then(interaction => interaction.update({ embeds: [exampleEmbed], components: [reportForm]}))
+          .catch(err => console.log(err));
+      })
+      client.on("interaction", interaction => {
+        const reportMessage = new MessageEmbed()
+	.setTitle('Report')
+	.setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
+	.setThumbnail(interaction.user.avatarURL())
+	.addFields(
+    { name: `Content:`, value: `${content}`, inline: true },
+    { name: '\u200B', value: '\u200B' },
+		{ name: `ID:`, value: `${id.id}`, inline: true },
+    { name: '\u200B', value: '\u200B' },
+		{ name: 'Username', value: `${username}`, inline: true },
+    { name: '\u200B', value: '\u200B' },
+    { name: 'Sent at:', value: `${time}`, inline: true },
+    { name: '\u200B', value: '\u200B' },
+    { name: 'Sent from:', value: `${fromS}\nIn: ${fromC}`, inline: true },
+    { name: '\u200B', value: '\u200B' },
+	)
+        var owner = client.users.cache.get('385441179069579265')
+        if(interaction.values){
+        owner.send({ embeds: [reportMessage]})
+        }
+      })
 
+
+
+    //user.send(`id: ${reaction.message.author.id}\nUsername: ${reaction.message.author.username}\nAvatar: ${reaction.message.author.avatar}`)
+  }
+  //console.log(reaction.message)
 	// Now the message has been cached and is fully available
 	console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
 	// The reaction is now also fully available and the properties will be reflected accurately:
@@ -61,6 +177,24 @@ client.on('messageReactionAdd', async (reaction, user) => {
 client.on("messageCreate", (message) => {
   // on ne prend pas en compte les DMs
   if (message.channel.type == "dm") return;
+  /*if(message.content === "!servers"){
+    var invites = []; // starting array
+    message.client.guilds.cache.forEach(async (guild) => { // iterate loop on each guild bot is in
+  
+      // get the first channel that appears from that discord, because
+      // `.createInvite()` is a method for a channel, not a guild.
+      const channel = guild.channels.cache 
+        .filter((channel) => channel.type === 'text')
+        .first();
+      if (!channel || guild.member(client.user).hasPermission('CREATE_INSTANT_INVITE')){ console.log("no permission to invite")}
+      await channel.createInvite({ maxAge: 0, maxUses: 0 })
+        .then(async (invite) => {
+          invites.push(`${guild.name} - ${invite.url}`); // push invite link and guild name to array
+        })
+        .catch((error) => console.log(error));
+      console.log(invites);
+    })
+  }*/
 
     // COMMANDE DE LINK
   if (message.content == "!link") {
@@ -186,22 +320,20 @@ client.on("messageCreate", (message) => {
                       everyone = true
                     }
                     
-                        try {
-                        var bannedList = db.get("bans")
+                        var bannedList = db.get("bans.bans")
                         console.log(bannedList)
                         for(var banned in bannedList){
+                          //console.log(banned)
                           if(message.author.id == bannedList[banned]){
                             everyone = true
                           }
                         }
-                      } catch(err) {
-                        message.channel.send(err)
-                      }
                       
                     
                       if (wb != undefined && !everyone){ 
                         try {
                         wb.send(msg)
+                        //console.log(wb)
                         } catch(err) {
                           message.channel.send("There was an error with the hook" + element)
                         }
