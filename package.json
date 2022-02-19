@@ -13,6 +13,7 @@
     "decache": "^4.5.1",
     "discord.js": "^13.6.0",
     "fs-extra": "^8.1.0",
+    "jsonpath": "^1.1.1",
     "path": "^0.12.7"
   }
 }

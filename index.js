@@ -8,6 +8,7 @@ const config = require("./config.json");
 const fs = require("fs-extra");
 const decache = require("decache");
 const path = require("path");
+const jp = require("jsonpath");
 var prefix = config.prefix;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -32,6 +33,10 @@ client.on("guildDelete", guild => {
   const guildDelete = require("./events/guildDelete.js")
   guildDelete(Discord, client, guild, fs, decache)
 });
+client.on("channelDelete", guild => {
+  const guildDelete = require("./events/channelDelete.js")
+  guildDelete(Discord, client, guild, fs, decache)
+})
 
 client.on("messageCreate", (message) => {
   // on ne prend pas en compte les DMs
@@ -84,6 +89,35 @@ client.on("messageCreate", (message) => {
   else if (message.content == "!oldList") {console.log(" Old Networks List :"), console.log(oldNetworksList)}
 
   else if (message.content == "!newNetList") {console.log(" New Network List :"), console.log(newNetworkList)}
+
+  else if (message.content == "!here") {
+
+  }
+  if(message.content.startsWith(prefix + 'blacklist') && !message.author.bot){
+
+    const args = message.content.slice(prefix.length).trim().split(/ +/g);
+    //console.log(args[1]);
+    let reason = args.slice(2).join(' '); // arguments should already be defined
+    const blackList = require("./functions/blackList.js")
+    blackList(Discord, client, message, fs, decache, path, args, reason)
+  }
+  if(message.content.startsWith(prefix + 'unblacklist') && !message.author.bot){
+
+    const args = message.content.slice(prefix.length).trim().split(/ +/g);
+    //console.log(args[1]);
+    let reason = args.slice(2).join(' '); // arguments should already be defined
+    const unblackList = require("./functions/unblackList.js")
+    unblackList(Discord, client, message, fs, decache, path, args, reason)
+  }
+  if(message.content.startsWith(prefix + 'linkban') && !message.author.bot){
+
+    const args = message.content.slice(prefix.length).trim().split(/ +/g);
+    //console.log(args[1]);
+    const command = args.shift().toLowerCase();
+    const linkBan = require("./functions/linkBan.js")
+    linkBan(Discord, client, message, fs, decache, path, args)
+  }
+
 
 
   if ((message.author.bot) || message.content.startsWith(prefix)) return;
@@ -139,11 +173,17 @@ client.on("messageCreate", (message) => {
                     if(msg.includes("@everyone") || msg.includes("@here")){
                       everyone = true
                     }
-                    if (wb != undefined && !everyone) wb.send(msg)
+                   
+                      if (wb != undefined && !everyone) wb.send(msg)
                     // s'il n'existe pas on supprime le fichier
                     if(wb == undefined){
                       fs.removeSync(wbFile) && console.log(" Le fichier " + wbFile + " a été supprimé car le webhook associé n'existe plus")
                     }
+                      
+                   
+                    //console.log(blackListed)
+                    
+                    
                   })
 
                 }

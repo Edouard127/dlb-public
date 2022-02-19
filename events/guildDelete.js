@@ -1,3 +1,4 @@
+
 function guildDelete(Discord, client, guild, fs, decache) {
 
   var guildName = guild.name;
