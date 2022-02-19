@@ -35,7 +35,7 @@ function unlinkCmd(Discord, client, message, fs, decache, path) {
               
 
               // si le message n'a pas déjà été supprimé on le supprime
-              if ((msg != undefined)||(msg != null)) msg.delete();
+              if ((msg != undefined)||(msg != null))
 
               var fileText = `function hook(Discord, client) {
 \/\/hook_${chanID} = undefined;
@@ -148,8 +148,9 @@ module.exports = hook`;
               }
 
             })
+            */
 
-*/
+
 
             if (fs.existsSync(linkedGuildFilePath)) fs.removeSync(linkedGuildFilePath) // on supprime le fichier dans le dossier ./linked_servers/
 

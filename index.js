@@ -3,12 +3,14 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 const Discord = require("./node_modules/discord.js");
-const client = new Discord.Client({autoReconnect: true, max_message_cache: 0, intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS"]/*, disableEveryone: true*/});
+const client = new Discord.Client({autoReconnect: true, max_message_cache: 0, intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS"], partials: ['MESSAGE', 'CHANNEL', 'REACTION'],/*, disableEveryone: true*/});
 const config = require("./config.json");
 const fs = require("fs-extra");
 const decache = require("decache");
 const path = require("path");
-const jp = require("jsonpath");
+
+const db = require("quick.db");
+
 var prefix = config.prefix;
 
 /////////////////////////////////////////////////////////////////////////////////////////
@@ -38,6 +40,24 @@ client.on("channelDelete", guild => {
   guildDelete(Discord, client, guild, fs, decache)
 })
 
+client.on('messageReactionAdd', async (reaction, user) => {
+	// When a reaction is received, check if the structure is partial
+	if (reaction.partial) {
+		// If the message this reaction belongs to was removed, the fetching might result in an API error which should be handled
+		try {
+			await reaction.fetch();
+		} catch (error) {
+			console.error('Something went wrong when fetching the message:', error);
+			// Return as `reaction.message.author` may be undefined/null
+			return;
+		}
+	}
+
+	// Now the message has been cached and is fully available
+	console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
+	// The reaction is now also fully available and the properties will be reflected accurately:
+	console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
+});
 client.on("messageCreate", (message) => {
   // on ne prend pas en compte les DMs
   if (message.channel.type == "dm") return;
@@ -97,7 +117,7 @@ client.on("messageCreate", (message) => {
     //console.log(args[1]);
     let reason = args.slice(2).join(' '); // arguments should already be defined
     const blackList = require("./functions/blackList.js")
-    blackList(Discord, client, message, fs, decache, path, args, reason)
+    blackList(Discord, client, message, fs, decache, path, args, reason, db)
   }
   if(message.content.startsWith(prefix + 'unblacklist') && !message.author.bot){
 
@@ -107,14 +127,7 @@ client.on("messageCreate", (message) => {
     const unblackList = require("./functions/unblackList.js")
     unblackList(Discord, client, message, fs, decache, path, args, reason)
   }
-  if(message.content.startsWith(prefix + 'linkban') && !message.author.bot){
 
-    const args = message.content.slice(prefix.length).trim().split(/ +/g);
-    //console.log(args[1]);
-    const command = args.shift().toLowerCase();
-    const linkBan = require("./functions/linkBan.js")
-    linkBan(Discord, client, message, fs, decache, path, args)
-  }
 
 
 
@@ -162,6 +175,7 @@ client.on("messageCreate", (message) => {
                   // on require le fichier du webhook
           	      var wb = require(wbFile)
                   // on édite le fichier du webhook
+                  try {
                   wb.edit({'name': message.author.tag, 'avatar': avatarURL}).catch(err => {
                     if (err) console.log(err)
                   // puis...
@@ -171,8 +185,33 @@ client.on("messageCreate", (message) => {
                     if(msg.includes("@everyone") || msg.includes("@here")){
                       everyone = true
                     }
-                   
-                      if (wb != undefined && !everyone) wb.send(msg)
+                    
+                        try {
+                        var bannedList = db.get("bans")
+                        console.log(bannedList)
+                        for(var banned in bannedList){
+                          if(message.author.id == bannedList[banned]){
+                            everyone = true
+                          }
+                        }
+                      } catch(err) {
+                        message.channel.send(err)
+                      }
+                      
+                    
+                      if (wb != undefined && !everyone){ 
+                        try {
+                        wb.send(msg)
+                        } catch(err) {
+                          message.channel.send("There was an error with the hook" + element)
+                        }
+                      }
+                      else if(everyone){
+                        message.channel.send(`Sorry ${message.author.username}, unfortunately you are banned from using this bot`).then((msg) => {
+                          if(message) message.delete()
+                          setTimeout(() => msg.delete(), 3000)
+                        })
+                      }
                     // s'il n'existe pas on supprime le fichier
                     if(wb == undefined){
                       fs.removeSync(wbFile) && console.log(" Le fichier " + wbFile + " a été supprimé car le webhook associé n'existe plus")
@@ -183,6 +222,10 @@ client.on("messageCreate", (message) => {
                     
                     
                   })
+                }
+                catch(err){
+                  message.channel.send("There was an error with the hook " + element)
+                }
 
                 }
 
@@ -192,7 +235,9 @@ client.on("messageCreate", (message) => {
 
           })
           // on retourne dans la console le nom d'utilisateur et le message
-        } else console.log(" " + message.author.tag + " : " + msg)
+        } else { 
+          console.log(" " + message.author.tag + " : " + msg)
+        }
   	  })
     }
   })
