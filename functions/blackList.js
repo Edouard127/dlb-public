@@ -33,7 +33,8 @@ function blackList(Discord, client, message, fs, decache, path, args, reason){
                             if (fileName == element) {
                               // on définit l'emplacement du fichier du webhook
                               const channelBan = client.channels.cache.get(element);
-                              channelBan.permissionOverwrites.edit(muteMember, { SEND_MESSAGES: false })      
+                              channelBan.permissionOverwrites.edit(muteMember, { SEND_MESSAGES: false })   
+                              message.channel.send(`**${muteMember.id}** muted in **${channelBan.id}** :mute:`)   
                             }
             
                           })

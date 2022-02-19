@@ -33,6 +33,7 @@ function unblackList(Discord, client, message, fs, decache, path, args, reason){
                           // on définit l'emplacement du fichier du webhook
                           const channelBan = client.channels.cache.get(element);
                           channelBan.permissionOverwrites.edit(muteMember, { SEND_MESSAGES: true })      
+                          message.channel.send(`**${muteMember}** muted in **#${channelBan}** :mute:`)   
                         }
         
                       })
@@ -45,9 +46,7 @@ function unblackList(Discord, client, message, fs, decache, path, args, reason){
                 })
             }
           })
-          message.delete().then(del=> {
-        //message.channel.send(`**${muteMember.user.username}** muted in **#${message.channel.name}** :mute:`)
-          })
+        
       })
     }
     

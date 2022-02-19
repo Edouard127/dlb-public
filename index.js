@@ -90,9 +90,7 @@ client.on("messageCreate", (message) => {
 
   else if (message.content == "!newNetList") {console.log(" New Network List :"), console.log(newNetworkList)}
 
-  else if (message.content == "!here") {
 
-  }
   if(message.content.startsWith(prefix + 'blacklist') && !message.author.bot){
 
     const args = message.content.slice(prefix.length).trim().split(/ +/g);
