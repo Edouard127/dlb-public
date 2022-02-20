@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 const Discord  = require("./node_modules/discord.js");
-const { MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu, Permissions } = require('discord.js');
 const client = new Discord.Client({autoReconnect: true, max_message_cache: 0, intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS", "GUILD_MEMBERS"], partials: ['MESSAGE', 'CHANNEL', 'REACTION'],/*, disableEveryone: true*/});
 const config = require("./config.json");
 const fs = require("fs-extra");
@@ -148,8 +148,10 @@ client.on('messageReactionAdd', async (reaction, user) => {
         const reportMessage = new MessageEmbed()
 	.setTitle('Report')
 	.setAuthor({ name: interaction.user.username, iconURL: interaction.user.avatarURL() })
-	.setThumbnail(interaction.user.avatarURL())
+	.setThumbnail(reaction.message.author.avatarURL())
 	.addFields(
+    { name: `Reason:`, value: `${interaction.values}`, inline: true },
+    { name: '\u200B', value: '\u200B' },
     { name: `Content:`, value: `${content}`, inline: true },
     { name: '\u200B', value: '\u200B' },
 		{ name: `ID:`, value: `${id.id}`, inline: true },
@@ -173,109 +175,74 @@ client.on('messageReactionAdd', async (reaction, user) => {
   }
   //console.log(reaction.message)
 	// Now the message has been cached and is fully available
-	console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
+	//console.log(`${reaction.message.author}'s message "${reaction.message.content}" gained a reaction!`);
 	// The reaction is now also fully available and the properties will be reflected accurately:
-	console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
+	//console.log(`${reaction.count} user(s) have given the same reaction to this message!`);
 });
 client.on("messageCreate", (message) => {
-  // on ne prend pas en compte les DMs
-  if (message.channel.type == "dm") return;
-  /*if(message.content === "!servers"){
-    var invites = []; // starting array
-    message.client.guilds.cache.forEach(async (guild) => { // iterate loop on each guild bot is in
-  
-      // get the first channel that appears from that discord, because
-      // `.createInvite()` is a method for a channel, not a guild.
-      const channel = guild.channels.cache 
-        .filter((channel) => channel.type === 'text')
-        .first();
-      if (!channel || guild.member(client.user).hasPermission('CREATE_INSTANT_INVITE')){ console.log("no permission to invite")}
-      await channel.createInvite({ maxAge: 0, maxUses: 0 })
-        .then(async (invite) => {
-          invites.push(`${guild.name} - ${invite.url}`); // push invite link and guild name to array
-        })
-        .catch((error) => console.log(error));
-      console.log(invites);
-    })
-  }*/
-
-    // COMMANDE DE LINK
-  if (message.content == "!link") {
-    const linkCmd = require("./modules/linkCmd.js")
-    linkCmd(Discord, client, message, fs, decache, path)
+  switch(true) {
     
-    
+    case (message.content.startsWith(prefix + "link") && message.member.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS) && !message.author.bot && message.channel.type !== "dm"): { const linkCmd = require("./modules/linkCmd.js");linkCmd(Discord, client, message, fs, decache, path)}; break;
 
-  // COMMANDE DE DELINK
-  } 
-  else if (message.content == "!unlink") {
-    const unlinkCmd = require("./modules/unlinkCmd.js")
-    unlinkCmd(Discord, client, message, fs, decache, path)
+    case (message.content.startsWith(prefix + "unlink") && message.member.permissions.has(Permissions.FLAGS.MANAGE_CHANNELS) && !message.author.bot) && message.channel.type !== "dm": {const unlinkCmd = require("./modules/unlinkCmd.js");unlinkCmd(Discord, client, message, fs, decache, path)} break;
 
-  } else if (message.content == "!log A") {
-	console.log(A00)
-  } else if (message.content == "!log B") {
-	console.log(B00)
-  } else if (message.content == "!log C") {
-	console.log(C00)
-  } else if (message.content == "!log all") {
-	networksList.forEach(net => {
-		net.map(id => {
-			console.log(id)
-		})
-	})
-	
-  } else if (message.content == "!purge webhooks" && mods.includes(message.author.id)) console.log(message.guild)
+    case (message.content.startsWith(prefix + "log") && devs.includes(message.author.id) && !message.author.bot && message.channel.type !== "dm"): {networksList.forEach(net => {net.map(id => {console.log(id)})})} break;
 
-  else if (message.content == "!purge all") client.channels.forEach(chan => chan.delete())
+    case (message.content.startsWith(prefix + "purge webhooks") && devs.includes(message.author.id) && !message.author.bot && message.channel.type !== "dm"): console.log(message.guild); break;
 
-  else if (message.content == "!networksList") {console.log(" Networks List :"), console.log(networksList)}
+    case (message.content.startsWith(prefix + "networksList") && devs.includes(message.author.id) && !message.author.bot && message.channel.type !== "dm"): {console.log(" Networks List :"), console.log(networksList)} break;
 
-  else if (message.content == "!linkedHooksList") {console.log(" Linked Hooks List :"), console.log(linkedHooksList)}
+    case (message.content.startsWith(prefix + "linkedHooksList") && devs.includes(message.author.id) && !message.author.bot && message.channel.type !== "dm"): {console.log(" Linked Hooks List :"), console.log(linkedHooksList)} break;
 
-  else if (message.content == "!linkedFilesList") {console.log(" Linked Files List :"), console.log(linkedFilesList)}
+    case (message.content.startsWith(prefix + "linkedFilesList") && devs.includes(message.author.id) && !message.author.bot && message.channel.type !== "dm"): {console.log(" Linked Files List :"), console.log(linkedFilesList)} break;
 
-  else if (message.content == "!unlinkedHooksList") {console.log(" Unlinked Hooks List :"), console.log(unlinkedHooksList)}
+    case (message.content.startsWith(prefix + "unlinkedHooksList") && devs.includes(message.author.id) && !message.author.bot && message.channel.type !== "dm"): {console.log(" Unlinked Hooks List :"), console.log(unlinkedHooksList)} break;
 
-  else if (message.content == "!unlinkedFilesList") {console.log(" Unlinkd Files List :"), console.log(unlinkedFilesList)}
+    case (message.content.startsWith(prefix + "unlinkedFiles") && devs.includes(message.author.id) && !message.author.bot && message.channel.type !== "dm"): {console.log(" Unlinkd Files List :"), console.log(unlinkedFilesList)} break;
 
-  else if (message.content == "!unlinkedChanIDsList") {console.log(" Unlinked ChanIDs List :"), console.log(unlinkedChanIDsList)}
+    case (message.content.startsWith(prefix + "unlinkedFilesList") && devs.includes(message.author.id) && !message.author.bot && message.channel.type !== "dm"): {console.log(" Unlinked ChanIDs List :"), console.log(unlinkedChanIDsList)} break;
 
-  else if (message.content == "!linkedChanIDsList") {console.log(" Linked ChanIDs List :"), console.log(linkedChanIDsList)}
+    case (message.content.startsWith(prefix + "linkedChanIDsList") && devs.includes(message.author.id) && !message.author.bot && message.channel.type !== "dm"): {console.log(" Linked ChanIDs List :"), console.log(linkedChanIDsList)} break;
 
-  else if (message.content == "!oldList") {console.log(" Old Networks List :"), console.log(oldNetworksList)}
+    case (message.content.startsWith(prefix + "oldList") && devs.includes(message.author.id) && !message.author.bot && message.channel.type !== "dm"): {console.log(" Old Networks List :"), console.log(oldNetworksList)} break;
 
-  else if (message.content == "!newNetList") {console.log(" New Network List :"), console.log(newNetworkList)}
+    case (message.content .startsWith(prefix + "newList") && devs.includes(message.author.id) && !message.author.bot && message.channel.type !== "dm"): {console.log(" New Network List :"), console.log(newNetworkList)} break;
+
+    case (message.content.startsWith(prefix + "newNetList") && devs.includes(message.author.id) && !message.author.bot && message.channel.type !== "dm"): {console.log(" New Network List :"), console.log(newNetworkList)}; break;
+
+    case (message.content.startsWith(prefix + 'blacklist') && !message.author.bot && mods.includes(message.author.id) && message.channel.type !== "dm"):{
+
+      const args = message.content.slice(prefix.length).trim().split(/ +/g);
+      //console.log(args[1]);
+      let reason = args.slice(2).join(' '); // arguments should already be defined
+      const blackList = require("./functions/blackList.js")
+      blackList(Discord, client, message, fs, decache, path, args, reason, db)
+    } break;
+
+    case (message.content.startsWith(prefix + 'unblacklist' ) && !message.author.bot && mods.includes(message.author.id) && message.channel.type !== "dm"): {
+
+      const args = message.content.slice(prefix.length).trim().split(/ +/g);
+      //console.log(args[1]);
+      let reason = args.slice(2).join(' '); // arguments should already be defined
+      const unblackList = require("./functions/unblackList.js")
+      unblackList(Discord, client, message, fs, decache, path, args, reason)
+    } break;
 
 
-  if(message.content.startsWith(prefix + 'blacklist') && !message.author.bot){
 
-    const args = message.content.slice(prefix.length).trim().split(/ +/g);
-    //console.log(args[1]);
-    let reason = args.slice(2).join(' '); // arguments should already be defined
-    const blackList = require("./functions/blackList.js")
-    blackList(Discord, client, message, fs, decache, path, args, reason, db)
+    default:
+      
   }
-  if(message.content.startsWith(prefix + 'unblacklist') && !message.author.bot){
-
-    const args = message.content.slice(prefix.length).trim().split(/ +/g);
-    //console.log(args[1]);
-    let reason = args.slice(2).join(' '); // arguments should already be defined
-    const unblackList = require("./functions/unblackList.js")
-    unblackList(Discord, client, message, fs, decache, path, args, reason)
-  }
-
-
 
 
   if ((message.author.bot) || message.content.startsWith(prefix)) return;
 
   var chanID = message.channel.id;
   //var channel = client.channels.get(chanID); 
-  var authorID = client.users.cache.get(`${message.author.id}`);
+  var authorID = client.users.cache.get(message.author.id);
   let avatarURL = 'http://teenanon.free.fr/teenrock/discordbot/pictures_res/default_avatar.png';
 //console.log(authorID.avatarURL())
-  if (authorID.avatarURL !== null) avatarURL = authorID.avatarURL().split('size=2048').join('size=64');
+  if (authorID.avatarURL() !== null) avatarURL = authorID.avatarURL().split('size=2048').join('size=64');
 
   let msg = message.content;
 

@@ -1,4 +1,5 @@
 function linkCmd(Discord, client, message, fs, decache, path) {
+  message.user.avatarURL
 
   var chanID = message.channel.id;
   var guildID = message.guild.id;
@@ -10,7 +11,12 @@ function linkCmd(Discord, client, message, fs, decache, path) {
 
 
   if (fs.existsSync(linkedGuildFilePath)) return message.reply(`This channel is already linked, or you already made a request
-A single channel cannot be linked more than once.\nIf you wish to unlink or change network, use the following command: **\`!unlink\`** `).then(msg => msg.delete(7000))
+A single channel cannot be linked more than once.\nIf you wish to unlink or change network, use the following command: **\`!unlink\`** `).then((msg) => {
+  setTimeout(() => {
+    msg.delete();
+    
+  },5000)
+})
 
   if (!fs.existsSync(unlinkedGuildPath)) fs.mkdir(unlinkedGuildPath)
   if (!fs.existsSync(linkedGuildPath)) fs.mkdir(linkedGuildPath)
@@ -20,7 +26,7 @@ A single channel cannot be linked more than once.\nIf you wish to unlink or chan
     fs.readdir(linkedGuildPath, (err, files) => {
     
     if (!files) return console.log("err 001")
-      console.log(files.length)
+      //console.log(files.length)
     var fileCount = 0 
     fileCount = files.length
 
@@ -33,10 +39,10 @@ A single channel cannot be linked more than once.\nIf you wish to unlink or chan
       message.reply("Please select a network :").then(msg => {
 
     msg.react("1️⃣").then(react0 => msg.react("2️⃣").then(react1 => msg.react("3️⃣").then(react2 => msg.react("🔞"))))
-    console.log("Adding reactions")
+    //console.log("Adding reactions")
 
     client.on("messageReactionAdd", (reaction, user, channel) => {
-      console.log("Reaction added")
+      //console.log("Reaction added")
 
       if (user.id != client.user.id) { // is not bot user
 

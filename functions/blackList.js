@@ -28,6 +28,9 @@ function blackList(Discord, client, message, fs, decache, path, args, reason){
                 message.reply("Please make sure to enter the user ID")
             }
         }
+        else {
+            message.reply("Please make sure to enter the user ID")
+        }
       } catch(err) {
         console.error(err)
       }

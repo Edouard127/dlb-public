@@ -13,17 +13,17 @@ function unlinkCmd(Discord, client, message, fs, decache, path) {
     msg.react("✅").then(react0 => msg.react("❌"))
     // on attend une réaction
     client.on("messageReactionAdd", (reaction, user, channel) => {
-      console.log("Reaction added")
+      //console.log("Reaction added")
       // on vérifie que l'utilisateur qui réagit n'est pas un bot
       if (user.id != client.user.id) {
-        console.log("Not a bot")
+        //console.log("Not a bot")
         // on vérifie que l'utilisateur qui réagit est celui qui a émit la commande de link
         if (user.id != message.author.id) {
-          console.log("Not the same user")
+          //console.log("Not the same user")
             message.channel.send(`**${user}** It's not your responsibility to react`).then(msg => reaction.remove() && msg.delete(7500)); // si ce n'est pas le cas on retire la réaction
 
           } else if ((user.id == message.author.id) && (reaction.message.id == msg.id)) { 
-            console.log("Same user")// on vérifie que l'id utilisateur et l'id du message correspondent respectivement
+            //console.log("Same user")// on vérifie que l'id utilisateur et l'id du message correspondent respectivement
 
             // Si on désapprouve on arrete ici
             if (reaction.emoji.name == "❌"){
