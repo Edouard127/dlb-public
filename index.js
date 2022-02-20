@@ -255,56 +255,91 @@ client.on("messageCreate", (message) => {
   // GLOBAL LINK
 
   // pour chaque liste de la liste des réseaux
+  // for each list of the list of networks
   networksList.forEach(list => {
     // si l'ID du salon d'où provient le message n'appartient à aucune liste on arrête ici
+    // if the ID of the channel where it comes doesn't come from any of those list, we stop there
   	if (!list.includes(chanID)) return
     // si l'ID du salon d'où provient le message appartient à une liste, alors ...
+    // if the ID of the channel where it come does come from any of those list, then..
   	else {
   	  // on vérifie que chaque liste réseau contienne une liste
+      // we check that each network list has at least one list
   	   if (Array.isArray(list)) list.forEach(element => {
       	// on exclu l'élément (chanID) d'où provient le message
+        // we recomve the element (chanID) where the message comes from
         if (element != chanID) {
           // on lit chaque dossier contenu dans le dossier des réseaux puis...
+          // we read each folder inside the folder of networks then...
           fs.readdirSync("./networks/").forEach(network => {
           	// on lit chaque dossier contenu dans le dossier du réseau concerné
+            // we read each folder inside the folder of the concerned network
             fs.readdirSync("./networks/" + network + "/").forEach(guildDir => {
               // on exclu le fichier ".keep" (utile pour github) puis on définit chaque fichier contenu dans le dossier de la Guild ()
+              // we remove the file ".keep" (useful for github) then we define each files inside the folder inside the folder of the guild
            	  if (guildDir != ".keep") fs.readdirSync("./networks/" + network + "/" + guildDir).forEach(file => {
            	  	// on définit fileName comme étant le nom du fichier sans extension
+                // we define 'fileName' as being the name of the file without extension
           		var fileName = file.split(".js").join("")
           		// si le nom du fichier (chanID) est égal à un élément de cette liste
+              // if the name of the file (chanID) is equal at one element from this list
                 if (fileName == element) {
                   // on définit l'emplacement du fichier du webhook
+                  // we define the emplacement of the file of the webhook
                   var wbFile = "./networks/" + network + "/" + guildDir + "/" + element + ".js";
                   // on require le fichier du webhook
+                  // we require the file of the webhook
           	      var wb = require(wbFile)
                   // on édite le fichier du webhook
+                  // we edit the file of the webhook
                   try {
                   wb.edit({'name': message.author.tag, 'avatar': avatarURL}).catch(err => {
                     if (err) console.log(err)
                   // puis...
+                  // then...
                   }).then(wb => {
                   	// si le webhook existe on l'envoie
+                    // if the webhook exist, we send it
                     var everyone = false
+                    // variable de condition pour savoir si ont peux envoyer le message ou non
+                    // condition variable to check if we can send the message or no
                     if(msg.includes("@everyone") || msg.includes("@here")){
                       everyone = true
                     }
+                    // si le message contient "@everyone" ou "@here", la condition est vrai
+                    // if the message contains "@everyone" or "@here", the condition is true
                     
                         var bannedList = db.get("bans.bans")
-                        console.log(bannedList)
+                        // ont récupére la ban list de json.sqlite
+                        // console.log(bannedList)
                         for(var banned in bannedList){
-                          //console.log(banned)
+                          
                           if(message.author.id == bannedList[banned]){
                             everyone = true
+                            // si l'ID du membre est dans la ban list, la condition est vrai
+                            // if the ID of the member is in the ban list, the condition is true
                           }
                         }
                         var splitedMSG = msg.split(' ')
+                        // ont récupere le message est ont splite chaque mot dans un array
+                        // we take the message and split each words into an array
                         var except = "NSFW"
+                        // si le nom du réseau contient 'NSFW' ;)
+                        // if the name of the network includes the word 'NSFW' ;)
                         for(var i = 0; i < splitedMSG.length; i++) {
                           if(network.replace(/[0-9]/g, '') !== except){
-                          if(wordList.includes(splitedMSG[i].replace(/\*/g, ''))) {
+                            // ont retire les nombres dans le nom du réseau et ont regarde si le nom n'est pas 'NSFW'
+                            // we remove the numbers inside the name of the network and check if the name is not 'NSFW'
+                          if(wordList.includes(splitedMSG[i].replace(/[&\`+$~%.:*]/g, ''))) {
+                            // ont regarde si le mot est dans l'array de mots bannie, tout en enlevant certains caracteres spéciaux
+                            // we check if the word is in the array of banned words, while removing certains spiecials caracters
                             everyone = true
+                            // si les mot est la, la condition est vrai
+                            // if the word is in the array of banned words, the condition is true
                             i = splitedMSG.length
+                            // la variable d'indexation est égal a la taille de l'array de "splitedMSG"
+                            // the indexation variable is equivalent to the array length of "splitedMSG"
+
                           }
                         }
 
@@ -313,26 +348,32 @@ client.on("messageCreate", (message) => {
                       
                     
                       if (wb != undefined && !everyone){ 
+                        // si le webhook n'est pas indéfinie et que la variable de condition est fausse, ...
                         try {
                         wb.send(msg)
-                        //console.log(wb)
+                        // envoie le message dans tout les salons lié dans le réseau
+                        // send the message to all the channels linked in the network
                         } catch(err) {
                           message.channel.send("There was an error with the hook" + element)
                         }
                       }
                       else if(everyone){
+                        // si la variable de condition est vrai, le message n'est pas envoyé, et un message est envoyé
+                        // if the condition variable is true, the message is bot sent to all the channels linked in the network
                         message.channel.send(`Sorry ${message.author.username}, unfortunately, your message is not allowed to be sent or you have been banned.`).then((msg) => {
                           
                           setTimeout(() => msg.delete(), 3000)
                         })
                       }
-                    // s'il n'existe pas on supprime le fichier
+                    
                     if(wb == undefined){
                       fs.removeSync(wbFile) && console.log(" Le fichier " + wbFile + " a été supprimé car le webhook associé n'existe plus")
                     }
+                    // si le webhook n'existe pas on supprime le fichier
+                    // if the webhook does not exist, we delete the file
                       
                    
-                    //console.log(blackListed)
+                    
                     
                     
                   })
@@ -348,9 +389,11 @@ client.on("messageCreate", (message) => {
             })
 
           })
-          // on retourne dans la console le nom d'utilisateur et le message
+          
         } else { 
           console.log(" " + message.author.tag + " : " + msg)
+          // on retourne dans la console le nom d'utilisateur et le message
+          // we send in the console the username and the message
         }
   	  })
     }
