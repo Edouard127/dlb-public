@@ -3,7 +3,7 @@
 /////////////////////////////////////////////////////////////////////////////////////////
 
 const Discord  = require("./node_modules/discord.js");
-const { MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu, Permissions } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton, MessageSelectMenu, Permissions, MessageAttachment } = require('discord.js');
 const client = new Discord.Client({autoReconnect: true, max_message_cache: 0, intents: ["GUILDS", "GUILD_MESSAGES", "GUILD_MESSAGE_REACTIONS", "GUILD_MEMBERS"], partials: ['MESSAGE', 'CHANNEL', 'REACTION'],/*, disableEveryone: true*/});
 const config = require("./config.json");
 const fs = require("fs-extra");
@@ -242,7 +242,8 @@ client.on("messageCreate", (message) => {
   var authorID = client.users.cache.get(message.author.id);
   let avatarURL = 'http://teenanon.free.fr/teenrock/discordbot/pictures_res/default_avatar.png';
 //console.log(authorID.avatarURL())
-  if (authorID.avatarURL() !== null) avatarURL = authorID.avatarURL().split('size=2048').join('size=64');
+  if (authorID.avatarURL() !== null) 
+    avatarURL = authorID.avatarURL().split('size=2048').join('size=64');
 
   let msg = message.content;
 
@@ -293,6 +294,7 @@ client.on("messageCreate", (message) => {
                   // on édite le fichier du webhook
                   // we edit the file of the webhook
                   try {
+                    
                   wb.edit({'name': message.author.tag, 'avatar': avatarURL}).catch(err => {
                     if (err) console.log(err)
                   // puis...
@@ -320,6 +322,10 @@ client.on("messageCreate", (message) => {
                             // if the ID of the member is in the ban list, the condition is true
                           }
                         }
+                        /*if(message.type == "REPLY"){
+                          const drawImage = require('./functions/drawImage.js')
+                          drawImage(Discord, client, message, fs, decache, path, Canvas, MessageAttachment)
+                        }*/
                         var splitedMSG = msg.split(' ')
                         // ont récupere le message est ont splite chaque mot dans un array
                         // we take the message and split each words into an array
@@ -350,11 +356,23 @@ client.on("messageCreate", (message) => {
                       if (wb != undefined && !everyone){ 
                         // si le webhook n'est pas indéfinie et que la variable de condition est fausse, ...
                         try {
+                          if(message.type == "REPLY"){
+                        (async () => {
+                          const repliedTo = await message.channel.messages.fetch(message.reference.messageId);
+                            
+                            
+                            msg = '> Replying to ' + message.mentions.repliedUser.username + ': ```' + repliedTo.content + '```\n' + msg
+                            wb.send(msg)
+                        })();
+                      } else {
                         wb.send(msg)
+                      }
+                        
+                        
                         // envoie le message dans tout les salons lié dans le réseau
                         // send the message to all the channels linked in the network
                         } catch(err) {
-                          message.channel.send("There was an error with the hook" + element)
+                          message.channel.send("There was an error with the hook" + element + "\n\n\n" + err)
                         }
                       }
                       else if(everyone){
